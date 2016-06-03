@@ -51,7 +51,7 @@ Five tabs are provided in the application for the user:
 - **Weather Details:** This tab displays the minimum and maximum Temperature and Windspeed for the selected date.
 - **Temperature Plot:** This tab displays a plot of the temperature in for the selected date. The maximum temperature is marked with a red line and minimum temperature with a blue line.
 - **Wind Speed Plot:** This tab displays a plot of the wind speed for the selected date. The maximum speed is marked with a red line and minimum speed with a blue line.
-- **Help:** This tabe gives help on using the application
+- **Help:** This tab gives help on using the application
 - **Project Description:** This tab gives a description of the project and links to various resources related to the project.
 
 **Note:** _Valid dates for this application are from the 1st January 2012 (2012-01-01) until the 31st December 2012 (2012-12-31). If dates outside this range or an invalid date is entered, an error will be displayed on the page. Refresh the page to start again._</small></small></small>
