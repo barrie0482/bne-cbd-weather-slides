@@ -1,0 +1,176 @@
+<style>
+.section .reveal .state-background {background: #fff2e6;}
+.section .reveal h1,
+.section .reveal h2,
+.section .reveal p { color: black;}
+
+.bslide .reveal .state-background { background: #fff2e6;} 
+.bslide .reveal h1 {color: green;}
+.bslide .reveal h2 {color: green;}
+.bslide .reveal p { color: black;}
+.bslide .reveal strong { font-weight: bold;color: green;}
+.bslide .reveal em { font-style: italic; color: blue;}
+
+</style>
+Brisbane CBD Weather for 2012 
+========================================================
+author: Barrie Hill  
+date: 3 June 2016  
+autosize: true
+transition: fade
+font-family: 'Helvetica'
+
+Overview
+========================================================
+type: bslide
+<small><small>
+This presentation is part of the course project for the **Developing Data Products** subject of the **Data Science Specialization** course run by Coursera and Johns Hopkins University.
+
+This **Reproducible Pitch Presentation** satisfies the following project requirements:
+
+- It must be done in Slidify or Rstudio Presenter
+- It must be 5 pages
+- It must be hosted on github or Rpubs
+- It must contained some embedded R code that gets run when slidifying the document
+
+
+The presentation is written using **Rstudio Presenter**. It is **five pages** long and is hosted on **Rpubs**. Slide 4 (Example Output) contains **embedded R code** that runs when the presentation is compiled. The data is loaded and then filtered on the date, Monday 25 June 2012. Text and a chart is displayed in **Slide 4** relevant to this date.
+
+
+</small></small>
+
+The Application
+========================================================
+type: bslide
+<small><small><small>
+This application ([bne-cbd-weather](https://barrie0482.shinyapps.io/bne-cbd-weather/)) displays weather information for the Brisbane Central Business District(CBD) for 2012. It is intended for use by a group of researchers who need to quicky view 2012 temperature and wind speed information for the Brisbane CBD. The [bne-cbd-weather](https://barrie0482.shinyapps.io/bne-cbd-weather/) application is browser based application available at the url https://barrie0482.shinyapps.io/bne-cbd-weather/
+
+The application provides a **Date Input**  text box supplies an easy to use calendar to select the date to display. Clicking in the textbox will activate the calendar. Five tabs are available:
+- **Weather Details:** This tab displays the minimum and maximum Temperature and Windspeed for the selected date.
+- **Temperature Plot:** This tab displays a plot of the temperature in for the selected date. The maximum temperature is marked with a red line and minimum temperature with a blue line.
+- **Wind Speed Plot:** This tab displays a plot of the wind speed for the selected date. The maximum speed is marked with a red line and minimum speed with a blue line.
+- **Help:** This tabe gives help on using the application
+- **Project Description:** This tab gives a description of the project and links to various resources related to the project.
+
+**Note:** _Valid dates for this application are from the 1st January 2012 (2012-01-01) until the 31st December 2012 (2012-12-31). If dates outside this range or an invalid date is entered, an error will be displayed on the page. Refresh the page to start again._</small></small></small>
+
+Example Output
+========================================================
+type: bslide
+
+```{r echo=FALSE,eval=TRUE}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(scales)
+
+inputdate <- "2012-06-25"
+# Load the dataset
+mydata<- read.csv("data/bne-cbd-weather.csv", comment.char="#",sep = ",",stringsAsFactors = FALSE)
+# Create global variables, able to be used in ui.R and server.R. 
+# This enables both ui.R and server.R access to the variables on startup.
+# The Date Input widget requires these first and last dates of the dataset 
+# for initial configuration.
+mindate = as.character(min(as.Date(mydata$Date, "%d/%m/%Y")))
+maxdate = as.character(max(as.Date(mydata$Date, "%d/%m/%Y")))
+ # Get the input date in the right format
+                indate <-format(as.character(as.Date(inputdate), "%e/%m/%Y"))
+                # Subset the data on the input date
+                sdata <- filter(mydata, Date == str_trim(indate))
+                # Get the minimum temperature for the day
+                mintemp <- min(sdata$Air.Temperature)
+                # Get the maximum temperature for the day
+                maxtemp <- max(sdata$Air.Temperature)
+                # Format the date to be displayed in the temperature message
+                plotdate <- format(as.character(as.Date(inputdate), "%A %e %B %Y"))
+
+```
+
+
+<small><small><small>
+The text below and the chart to the right are created from **embedded R code** that runs when the presentation is compiled. 
+
+The text in _italics_ shows the maximum and minimum temperature temperatures for Monday 25 June 2012. The chart shows the temperature range for the same day. Minimum and maximum temperatures are indicated by the coloured lines at the top and bottom of the chart.
+
+_On `r plotdate` the minimum temperature in the Brisbane Central Business District (CBD) was  `r mintemp` degrees Celcius. The maximum temperature was `r maxtemp` degrees  Celcius._
+
+
+Similar details are also available in the application for wind speed.</small></small></small>
+
+***
+
+```{r, echo=FALSE}
+# , fig.width=8,fig.height=4.5,dpi=300,out.width="1920px",height="1080px"
+# Create a combined datetime field
+  sdata$datetime <- strptime(paste(sdata$Date, sdata$Time), format = "%d/%m/%Y %H:%M")
+# Plot the temperature chart
+  ggplot(sdata, aes(as.POSIXct(datetime), Air.Temperature,colour = "Temperature")) + geom_line() +
+              # Set up x and y axis scales
+              scale_x_datetime(
+                  breaks = date_breaks("2 hours"),
+                  labels = date_format("%H:%M", tz = "Australia/Brisbane"),
+                  limits = c(min(as.POSIXct(sdata$datetime)
+                   ), max(as.POSIXct(sdata$datetime)
+                ))
+                ) +
+              scale_y_continuous(breaks = seq(round(min(sdata$Air.Temperature)
+                  ), round(max(sdata$Air.Temperature)
+                  ), 1)) +
+                  # Set up x and y axis label
+                  xlab("Time") + ylab("Temperature(Celcius)") +
+                  # Set up chart title
+                  ggtitle(
+                          paste(
+                               "Brisbane CBD, Queensland, Australia \n  Temperature Chart for", plotdate )
+                        ) +
+                        # Set up axis theme
+                        theme(
+                                axis.title.x = element_text(
+                                        face = "bold",
+                                        colour = "#990000",
+                                        size = 20
+                                ),
+                                axis.title.y = element_text(
+                                        face = "bold",
+                                        colour = "#990000",
+                                        size = 20
+                                ),
+                                axis.text.x  = element_text(
+                                        angle = 45,
+                                        vjust = 0.5,
+                                        size = 15
+                                ),
+                                axis.text.y  = element_text(size = 15),
+                                plot.title  = element_text(size = 20)
+                        ) +
+                        # Create minimum and maximum wind speed lines
+                        geom_hline(aes(
+                                yintercept = min(sdata$Air.Temperature), 
+                                colour = "Minimum")) +
+                        geom_hline(aes(
+                                yintercept = max(sdata$Air.Temperature), 
+                                colour = "Maximum")) +
+                        # Create legend
+                        scale_colour_manual(
+                                name = "Legend", 
+                                values=c(Maximum="red", 
+                                         Temperature="green", 
+                                         Minimum="blue"))
+                        
+```
+
+Application and Source File Locations
+========================================================
+type: bslide
+
+The Application and this presentation can be found at the following locations.
+
+- Application: https://barrie0482.shinyapps.io/bne-cbd-weather/
+- This presentation  https://rpubs.com/barrie0482/bne-cbd-weather
+
+The source files for the application and presentation can be found at the following locations.
+
+- Application Project Source Files: https://github.com/barrie0482/bne-cbd-weather
+- Presentation Project Source Files: https://github.com/barrie0482/bne-cbd-weather-slides
+
+
